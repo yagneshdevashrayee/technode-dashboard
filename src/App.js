@@ -91,12 +91,6 @@ export default function App() {
   //     secretAccessKey: 'YOUR_SECRET_ACCESS_KEY',
   //     accessKeyId: 'YOUR_ACCESS_KEY_ID'
   // }
-  const config = new AWS.Config({
-    accessKeyId: "AKIAZ7PKQTJR7UGPZN6W",
-    secretAccessKey: "KYrZjPPeRt2bwUBo8WAhF5+MWuV1xbFzr5UjeKyE",
-    region: "ap-south-1",
-  });
-  AWS.config.update(config);
 
   // Open sidenav when mouse enter on mini sidenav
   // const handleOnMouseEnter = () => {
