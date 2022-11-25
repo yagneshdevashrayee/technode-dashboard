@@ -16,7 +16,7 @@ Coded by www.creative-tim.com
 import { useState, useEffect } from "react";
 
 // react-router components
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // prop-types is a library for typechecking of props.
 import PropTypes from "prop-types";
@@ -30,7 +30,8 @@ import Icon from "@mui/material/Icon";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
-import MDInput from "components/MDInput";
+import MDButton from "components/MDButton";
+import MDTypography from "components/MDTypography";
 
 // Material Dashboard 2 React example components
 import Breadcrumbs from "examples/Breadcrumbs";
@@ -41,17 +42,12 @@ import {
   navbar,
   navbarContainer,
   navbarRow,
-  navbarIconButton,
   navbarMobileMenu,
 } from "examples/Navbars/DashboardNavbar/styles";
 
 // Material Dashboard 2 PRO React context
-import {
-  useMaterialUIController,
-  setTransparentNavbar,
-  setMiniSidenav,
-  // setOpenConfigurator,
-} from "context";
+import { useMaterialUIController, setTransparentNavbar, setMiniSidenav } from "context";
+import getUser, { removeUserSession } from "utils/Common";
 
 function DashboardNavbar({ absolute, light, isMini }) {
   const [navbarType, setNavbarType] = useState();
@@ -59,6 +55,8 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const { miniSidenav, transparentNavbar, fixedNavbar, darkMode } = controller; // openConfigurator
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+  const navigate = useNavigate();
+  const user = getUser();
 
   useEffect(() => {
     // Setting the navbar type
@@ -85,10 +83,13 @@ function DashboardNavbar({ absolute, light, isMini }) {
     // Remove event listener on cleanup
     return () => window.removeEventListener("scroll", handleTransparentNavbar);
   }, [dispatch, fixedNavbar]);
-
+  useEffect(() => {
+    if (user === null) {
+      navigate("/authentication/sign-in");
+      sessionStorage.removeItem("data");
+    }
+  }, [user]);
   const handleMiniSidenav = () => setMiniSidenav(dispatch, !miniSidenav);
-  // const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
-  // const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
 
   // Render the notifications menu
@@ -122,7 +123,10 @@ function DashboardNavbar({ absolute, light, isMini }) {
       return colorValue;
     },
   });
-
+  const logoutUser = () => {
+    removeUserSession();
+    navigate("/authentication/sign-in");
+  };
   return (
     <AppBar
       position={absolute ? "absolute" : navbarType}
@@ -135,15 +139,20 @@ function DashboardNavbar({ absolute, light, isMini }) {
         </MDBox>
         {isMini ? null : (
           <MDBox sx={(theme) => navbarRow(theme, { isMini })}>
-            <MDBox pr={1}>
-              <MDInput label="Search here" />
+            <MDBox>
+              <MDTypography variant="h6" gutterBottom sx={{ mr: 2 }}>
+                {user !== null ? `Welcome ${user.name}!!` : "Hello!!"}
+              </MDTypography>
             </MDBox>
             <MDBox color={light ? "white" : "inherit"}>
-              <Link to="/authentication/sign-in">
-                <IconButton sx={navbarIconButton} size="small" disableRipple>
+              {/* <Link to="/authentication/sign-in"> */}
+              {/* <IconButton sx={navbarIconButton} size="small" disableRipple>
                   <Icon sx={iconsStyle}>account_circle</Icon>
-                </IconButton>
-              </Link>
+                </IconButton> */}
+              <MDButton variant="gradient" color="info" fullWidth onClick={logoutUser}>
+                Logout
+              </MDButton>
+              {/* </Link> */}
               <IconButton
                 size="small"
                 disableRipple
@@ -155,27 +164,6 @@ function DashboardNavbar({ absolute, light, isMini }) {
                   {miniSidenav ? "menu_open" : "menu"}
                 </Icon>
               </IconButton>
-              {/* <IconButton
-                size="small"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                onClick={handleConfiguratorOpen}
-              >
-                <Icon sx={iconsStyle}>settings</Icon>
-              </IconButton> */}
-              {/* <IconButton
-                size="small"
-                disableRipple
-                color="inherit"
-                sx={navbarIconButton}
-                aria-controls="notification-menu"
-                aria-haspopup="true"
-                variant="contained"
-                onClick={handleOpenMenu}
-              >
-                <Icon sx={iconsStyle}>notifications</Icon>
-              </IconButton> */}
               {renderMenu()}
             </MDBox>
           </MDBox>

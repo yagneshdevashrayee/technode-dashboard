@@ -12,96 +12,132 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
-const tableData = localStorage.getItem("data");
+const tableData = sessionStorage.getItem("data");
 let totalActivePower = 0;
 let totalApparentPower = 0;
-let totalReacivePower = 0;
+let totalReactivePower = 0;
 let totalVb = 0;
 let totalVy = 0;
 let totalVr = 0;
-let lastUpdated = "Recently";
+let totalIb = 0;
+let totalIy = 0;
+let totalIr = 0;
+let totalIAvg = 0;
+let totalpF = 0;
+let lastUpdated = new Date();
+const today = new Date().setHours(0, 0, 0, 0);
 if (tableData) {
   JSON.parse(tableData).forEach((eachRow, index) => {
-    if (index === 1) {
-      lastUpdated = eachRow.timestamp;
+    if (index === 0) {
+      lastUpdated = eachRow.ts;
     }
-    if (index < 5) {
-      totalActivePower += parseInt(eachRow["Active Power"], 10);
-      totalApparentPower += parseInt(eachRow["Apparent Power"], 10);
-      totalReacivePower += parseInt(eachRow["Reacive Power"], 10);
-      totalVb += parseInt(eachRow.VB, 10);
-      totalVy += parseInt(eachRow.VY, 10);
-      totalVr += parseInt(eachRow.VR, 10);
+    if (index === 0) {
+      totalActivePower = parseFloat(eachRow["Active Power"], 10);
+      totalApparentPower = parseFloat(eachRow["Apparent Power"], 10);
+      totalReactivePower = parseFloat(eachRow["Reactive Power"], 10);
+      totalVb = parseFloat(eachRow.VB, 10);
+      totalVy = parseFloat(eachRow.VY, 10);
+      totalVr = parseFloat(eachRow.VR, 10);
+      totalIb = parseFloat(eachRow.IB, 10);
+      totalIy = parseFloat(eachRow.IY, 10);
+      totalIr = parseFloat(eachRow.IR, 10);
+      totalIAvg = parseFloat(eachRow.Iavg, 10);
+      totalpF = parseFloat(eachRow.PF, 10);
     }
   });
 }
 
-console.log("1", totalActivePower / 4);
-console.log("2", totalApparentPower / 4);
-console.log("3", totalReacivePower / 4);
-console.log("4", totalVb / 4);
-console.log("5", totalVy / 4);
-console.log("6", totalVr / 4);
-console.log("time ", lastUpdated);
-console.log("tableData", tableData);
+const graphTime =
+  tableData &&
+  JSON.parse(tableData)
+    .map((eachRow, index) => {
+      const reqDateVar = new Date(eachRow.timeStamp).setHours(0, 0, 0, 0);
+      if (index < 20) {
+        if (today === reqDateVar) {
+          return `${new Date(eachRow.timeStamp).getHours()}:${new Date(
+            eachRow.timeStamp
+          ).getMinutes()}`;
+        }
+        return `${new Date(eachRow.timeStamp).getDate()}/${
+          new Date(eachRow.timeStamp).getMonth() + 1
+        }`;
+      }
+      return null;
+    })
+    .filter((data) => data != null);
 const activePower =
-  tableData && JSON.parse(tableData).map((eachObject) => parseInt(eachObject["Active Power"], 10));
-console.log("demo", activePower);
+  tableData &&
+  JSON.parse(tableData).map((eachObject) => parseFloat(eachObject["Active Power"], 10));
 const apparentPower =
   tableData &&
-  JSON.parse(tableData).map((eachObject) => parseInt(eachObject["Apparent Power"], 10));
-console.log("apparentPower", apparentPower);
-const reacivePower =
-  tableData && JSON.parse(tableData).map((eachObject) => parseInt(eachObject["Reacive Power"], 10));
-console.log("reacivePower", reacivePower);
-const vB = tableData && JSON.parse(tableData).map((eachObject) => parseInt(eachObject.VB, 10));
-console.log("reacivePower", vB);
-const vY = tableData && JSON.parse(tableData).map((eachObject) => parseInt(eachObject.VY, 10));
-console.log("reacivePower", vY);
-const vR = tableData && JSON.parse(tableData).map((eachObject) => parseInt(eachObject.VR, 10));
-console.log("reacivePower", vR);
-
+  JSON.parse(tableData).map((eachObject) => parseFloat(eachObject["Apparent Power"], 10));
+const ReactivePower =
+  tableData &&
+  JSON.parse(tableData).map((eachObject) => parseFloat(eachObject["Reactive Power"], 10));
+const vB = tableData && JSON.parse(tableData).map((eachObject) => parseFloat(eachObject.VB, 10));
+const vY = tableData && JSON.parse(tableData).map((eachObject) => parseFloat(eachObject.VY, 10));
+const vR = tableData && JSON.parse(tableData).map((eachObject) => parseFloat(eachObject.VR, 10));
+const iB = tableData && JSON.parse(tableData).map((eachObject) => eachObject.IB);
+const iY = tableData && JSON.parse(tableData).map((eachObject) => eachObject.IY);
+const iR = tableData && JSON.parse(tableData).map((eachObject) => eachObject.IR);
+const iAvg = tableData && JSON.parse(tableData).map((eachObject) => eachObject.iAvg);
+const pF = tableData && JSON.parse(tableData).map((eachObject) => eachObject.PF);
 export default {
   lastUpdated,
-  power: {
-    labels: ["1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m", "10m"],
+  activePower: {
+    labels: graphTime,
+    // labels: ["1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m", "10m"],
     datasets: { label: "Power", data: activePower },
-    cumulativeData: totalActivePower / 4,
-    // datasets: { label: "Sales", data: [50, 20, 10, 22, 50, 10, 40] },
+    cumulativeData: totalActivePower,
   },
-  sales: {
-    // labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    labels: ["1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m", "10m"],
-    datasets: { label: "Power", data: reacivePower },
-    cumulativeData: totalReacivePower / 4,
-    // datasets: { label: "Mobile apps", data: [50, 40, 300, 320, 500, 350, 200, 230, 500] },
+  reactivePower: {
+    labels: graphTime,
+    datasets: { label: "Power", data: ReactivePower },
+    cumulativeData: totalReactivePower,
   },
-  tasks: {
-    // labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    // datasets: { label: "Power", data: [50, 40, 300, 220, 500, 250, 400, 230, 500] },
-    labels: ["1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m", "10m"],
+  apparentPower: {
+    labels: graphTime,
     datasets: { label: "Power", data: apparentPower },
-    cumulativeData: totalApparentPower / 4,
+    cumulativeData: totalApparentPower,
   },
   yphase: {
-    // labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    // datasets: { label: "Power", data: [50, 40, 300, 220, 500, 250, 400, 230, 500] },
-    labels: ["1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m", "10m"],
+    labels: graphTime,
     datasets: { label: "Voltage", data: vY },
-    cumulativeData: totalVy / 4,
+    cumulativeData: totalVy,
   },
   rphase: {
-    // labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    // datasets: { label: "Power", data: [50, 40, 300, 220, 500, 250, 400, 230, 500] },
-    labels: ["1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m", "10m"],
+    labels: graphTime,
     datasets: { label: "Voltage", data: vR },
-    cumulativeData: totalVr / 4,
+    cumulativeData: totalVr,
   },
   bphase: {
-    // labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    // datasets: { label: "Power", data: [50, 40, 300, 220, 500, 250, 400, 230, 500] },
-    labels: ["1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m", "10m"],
+    labels: graphTime,
     datasets: { label: "Voltage", data: vB },
-    cumulativeData: totalVb / 4,
+    cumulativeData: totalVb,
+  },
+  iy: {
+    labels: graphTime,
+    datasets: { label: "Voltage", data: iY },
+    cumulativeData: totalIy,
+  },
+  ir: {
+    labels: graphTime,
+    datasets: { label: "Voltage", data: iR },
+    cumulativeData: totalIr,
+  },
+  ib: {
+    labels: graphTime,
+    datasets: { label: "Voltage", data: iB },
+    cumulativeData: totalIb,
+  },
+  iAvg: {
+    labels: graphTime,
+    datasets: { label: "Voltage", data: iAvg },
+    cumulativeData: totalIAvg,
+  },
+  pF: {
+    labels: graphTime,
+    datasets: { label: "Voltage", data: pF },
+    cumulativeData: totalpF,
   },
 };

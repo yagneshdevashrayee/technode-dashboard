@@ -13,7 +13,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 
 // porp-types is a library for typechecking of props
 import PropTypes from "prop-types";
@@ -22,7 +22,7 @@ import PropTypes from "prop-types";
 import { Line } from "react-chartjs-2";
 
 // @mui material components
-import Card from "@mui/material/Card";
+// import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import Icon from "@mui/material/Icon";
 
@@ -37,15 +37,15 @@ function ReportsLineChart({ color, title, description, date, chart }) {
   const { data, options } = configs(chart.labels || [], chart.datasets || {});
 
   return (
-    <Card sx={{ height: "100%" }}>
+    <Fragment sx={{ height: "100%" }}>
       <MDBox padding="1rem">
         {useMemo(
           () => (
             <MDBox
-              variant="gradient"
-              bgColor={color}
-              borderRadius="lg"
-              coloredShadow={color}
+              // variant="gradient"
+              bgColor="#ffffff"
+              // borderRadius="lg"
+              // coloredShadow={color}
               py={2}
               pr={0.5}
               mt={-5}
@@ -74,7 +74,7 @@ function ReportsLineChart({ color, title, description, date, chart }) {
           </MDBox>
         </MDBox>
       </MDBox>
-    </Card>
+    </Fragment>
   );
 }
 

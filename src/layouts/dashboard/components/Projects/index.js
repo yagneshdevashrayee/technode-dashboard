@@ -13,16 +13,13 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useState } from "react";
-
 // @mui material components
 import Card from "@mui/material/Card";
-import Icon from "@mui/material/Icon";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
 
 // Soft UI Dashboard React components
 import MDBox from "components/MDBox";
+import MDButton from "components/MDButton";
+import Grid from "@mui/material/Grid";
 import MDTypography from "components/MDTypography";
 
 // Soft UI Dashboard Materail-UI example components
@@ -33,30 +30,61 @@ import data from "layouts/dashboard/components/Projects/data";
 
 function Projects() {
   const { columns, rows } = data();
-  const [menu, setMenu] = useState(null);
+  function downloadBlob(content, filename, contentType) {
+    const csvString = [
+      [
+        ["\n"],
+        "Active Power",
+        "Apparent Power",
+        "Demand",
+        "Energy",
+        "PF",
+        "Reactive Power",
+        "VB",
+        "VR",
+        "VY",
+        "IB",
+        "IR",
+        "IY",
+        "TimeStamp",
+      ],
+      JSON.parse(content).map((item) => [
+        ["\n"],
+        item["Active Power"],
+        item["Apparent Power"],
+        item.Demand,
+        item.Energy,
+        item.PF,
+        item["Reactive Power"],
+        item.VB,
+        item.VR,
+        item.VY,
+        item.IB,
+        item.IR,
+        item.IY,
+        item.ts,
+      ]),
+    ];
 
-  const openMenu = ({ currentTarget }) => setMenu(currentTarget);
-  const closeMenu = () => setMenu(null);
+    // Create a blob
+    const blob = new Blob([csvString], { type: contentType });
+    const url = URL.createObjectURL(blob);
 
+    // Create a link to download it
+    const pom = document.createElement("a");
+    pom.href = url;
+    pom.setAttribute("download", filename);
+    pom.click();
+  }
+  function onDownloadClick() {
+    downloadBlob(sessionStorage.getItem("data"), `${new Date()}.csv`, "text/csv;charset=utf-8;");
+  }
   const renderMenu = (
-    <Menu
-      id="simple-menu"
-      anchorEl={menu}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "left",
-      }}
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={Boolean(menu)}
-      onClose={closeMenu}
-    >
-      <MenuItem onClick={closeMenu}>Action</MenuItem>
-      <MenuItem onClick={closeMenu}>Another action</MenuItem>
-      <MenuItem onClick={closeMenu}>Something else</MenuItem>
-    </Menu>
+    <Grid item xs={4} sm={2} lg={2}>
+      <MDButton variant="gradient" color="info" onClick={() => onDownloadClick()} fullWidth>
+        Export CSV
+      </MDButton>
+    </Grid>
   );
 
   return (
@@ -64,28 +92,10 @@ function Projects() {
       <MDBox display="flex" justifyContent="space-between" alignItems="center" p={3}>
         <MDBox>
           <MDTypography variant="h6" gutterBottom>
-            Projects
+            All Details
           </MDTypography>
-          <MDBox display="flex" alignItems="center" lineHeight={0}>
-            <Icon
-              sx={{
-                fontWeight: "bold",
-                color: ({ palette: { info } }) => info.main,
-                mt: -0.5,
-              }}
-            >
-              done
-            </Icon>
-            <MDTypography variant="button" fontWeight="regular" color="text">
-              &nbsp;<strong>30 done</strong> this month
-            </MDTypography>
-          </MDBox>
         </MDBox>
-        <MDBox color="text" px={2}>
-          <Icon sx={{ cursor: "pointer", fontWeight: "bold" }} fontSize="small" onClick={openMenu}>
-            more_vert
-          </Icon>
-        </MDBox>
+
         {renderMenu}
       </MDBox>
       <MDBox>

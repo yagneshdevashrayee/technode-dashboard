@@ -15,10 +15,12 @@ Coded by www.creative-tim.com
 
 // react-router-dom components
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
 
 // @mui material components
 import Card from "@mui/material/Card";
-import Checkbox from "@mui/material/Checkbox";
+// import Checkbox from "@mui/material/Checkbox";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -29,10 +31,39 @@ import MDButton from "components/MDButton";
 // Authentication layout components
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 
-// Images
-// import bgImage from "assets/images/bg-sign-up-cover.jpeg";
-
 function Cover() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [macId, setMacId] = useState("");
+  const [name, setName] = useState("");
+  const [message, setMessage] = useState(null);
+
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("macId", macId);
+
+    axios({
+      method: "post",
+      url: "http://iot.technodes.in/checkConnection.php",
+      data: formData,
+      config: { headers: { "Content-Type": "multipart/form-data" } },
+    })
+      .then((response) => {
+        // handle success
+        console.log("Registration successful!", response);
+        setMessage({ green: "Great! You have successfully Registered!" });
+      })
+      .catch((response) => {
+        // handle error
+        console.log("Failed to sign-up", response);
+        setMessage({ red: "Something went Wrong! Please try again with proper details!" });
+      });
+  };
+
   return (
     <CoverLayout>
       <Card>
@@ -51,21 +82,48 @@ function Cover() {
             Welcome to Technode!!
           </MDTypography>
           <MDTypography display="block" variant="button" color="white" my={1}>
-            Enter your email and password to register
+            Enter your details to Register
           </MDTypography>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
-          <MDBox component="form" role="form">
+          <MDBox component="form" role="form" method="post">
             <MDBox mb={2}>
-              <MDInput type="text" label="Name" variant="standard" fullWidth />
+              <MDInput
+                type="name"
+                label="Name"
+                variant="standard"
+                onChange={(e) => setName(e.target.value)}
+                fullWidth
+              />
             </MDBox>
             <MDBox mb={2}>
-              <MDInput type="email" label="Email" variant="standard" fullWidth />
+              <MDInput
+                type="email"
+                label="Email"
+                variant="standard"
+                onChange={(e) => setEmail(e.target.value)}
+                fullWidth
+              />
             </MDBox>
             <MDBox mb={2}>
-              <MDInput type="password" label="Password" variant="standard" fullWidth />
+              <MDInput
+                type="password"
+                label="Password"
+                variant="standard"
+                onChange={(e) => setPassword(e.target.value)}
+                fullWidth
+              />
             </MDBox>
-            <MDBox display="flex" alignItems="center" ml={-1}>
+            <MDBox mb={2}>
+              <MDInput
+                type="macId"
+                label="Mac Id"
+                variant="standard"
+                onChange={(e) => setMacId(e.target.value)}
+                fullWidth
+              />
+            </MDBox>
+            {/* <MDBox display="flex" alignItems="center" ml={-1}>
               <Checkbox />
               <MDTypography
                 variant="button"
@@ -87,11 +145,24 @@ function Cover() {
                   Terms and Conditions
                 </MDTypography>
               </span>
-            </MDBox>
+            </MDBox> */}
             <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth>
+              <MDButton
+                variant="gradient"
+                color="info"
+                onClick={(e) => handleFormSubmit(e)}
+                fullWidth
+              >
                 sign in
               </MDButton>
+              {message !== null ? (
+                <center>
+                  <p style={message.red ? { color: "red" } : { color: "green" }}>
+                    {message.red}
+                    {message.green}
+                  </p>
+                </center>
+              ) : null}
             </MDBox>
             <MDBox mt={3} mb={1} textAlign="center">
               <MDTypography variant="button" color="text">
